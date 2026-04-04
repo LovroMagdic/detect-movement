@@ -1,0 +1,9 @@
+{
+  "job_id": "65e6ec34-1dc9-4909-8629-4bd8675dc38c",
+  "video_path": "/app/backend/data/jobs/65e6ec34-1dc9-4909-8629-4bd8675dc38c/65e6ec34-1dc9-4909-8629-4bd8675dc38c_video5.mp4",
+  "frames_dir": "/app/backend/data/jobs/65e6ec34-1dc9-4909-8629-4bd8675dc38c/frames_65e6ec34-1dc9-4909-8629-4bd8675dc38c_video5.mp4",
+  "csv_path": "/app/backend/data/jobs/65e6ec34-1dc9-4909-8629-4bd8675dc38c/movement_data_65e6ec34-1dc9-4909-8629-4bd8675dc38c_video5.mp4.csv",
+  "map_path": "/app/backend/data/jobs/65e6ec34-1dc9-4909-8629-4bd8675dc38c/stitched_map_65e6ec34-1dc9-4909-8629-4bd8675dc38c_video5.mp4.jpg",
+  "heatmap_path": "/app/backend/data/jobs/65e6ec34-1dc9-4909-8629-4bd8675dc38c/dead_heatmap_65e6ec34-1dc9-4909-8629-4bd8675dc38c_video5.mp4.png",
+  "overlay_path": "/app/backend/data/jobs/65e6ec34-1dc9-4909-8629-4bd8675dc38c/stitched_map_dead_overlay_65e6ec34-1dc9-4909-8629-4bd8675dc38c_video5.mp4.jpg"
+}

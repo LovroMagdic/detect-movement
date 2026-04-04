@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+python-multipart
+redis
+rq
+opencv-python
+numpy
+matplotlib

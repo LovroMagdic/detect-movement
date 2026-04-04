@@ -1,0 +1,15 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.git
+.gitignore
+.cursor
+backend/data
+frontend/node_modules
+frontend/dist
+frames_*
+stitched_map*
+dead_heatmap*
+movement_data_*.csv
+

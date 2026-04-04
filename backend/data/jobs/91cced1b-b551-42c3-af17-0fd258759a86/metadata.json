@@ -1,0 +1,9 @@
+{
+  "job_id": "91cced1b-b551-42c3-af17-0fd258759a86",
+  "video_path": "/app/backend/data/jobs/91cced1b-b551-42c3-af17-0fd258759a86/91cced1b-b551-42c3-af17-0fd258759a86_video5.mp4",
+  "frames_dir": "/app/backend/data/jobs/91cced1b-b551-42c3-af17-0fd258759a86/frames_91cced1b-b551-42c3-af17-0fd258759a86_video5.mp4",
+  "csv_path": "/app/backend/data/jobs/91cced1b-b551-42c3-af17-0fd258759a86/movement_data_91cced1b-b551-42c3-af17-0fd258759a86_video5.mp4.csv",
+  "map_path": "/app/backend/data/jobs/91cced1b-b551-42c3-af17-0fd258759a86/stitched_map_91cced1b-b551-42c3-af17-0fd258759a86_video5.mp4.jpg",
+  "heatmap_path": "/app/backend/data/jobs/91cced1b-b551-42c3-af17-0fd258759a86/dead_heatmap_91cced1b-b551-42c3-af17-0fd258759a86_video5.mp4.png",
+  "overlay_path": "/app/backend/data/jobs/91cced1b-b551-42c3-af17-0fd258759a86/stitched_map_dead_overlay_91cced1b-b551-42c3-af17-0fd258759a86_video5.mp4.jpg"
+}
