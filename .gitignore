@@ -1,5 +1,7 @@
 *.mp4
 *.ps1
+*.jpg
+*.png
 
 # Ignore redis binary dump (dump.rdb) files
 
