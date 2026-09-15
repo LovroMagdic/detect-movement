@@ -13,10 +13,15 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379/0
       - RQ_QUEUE_NAME=detect-motion
+      - DATABASE_URL=sqlite:////app/backend/database/app.db
+      - SQLITE_JOURNAL_MODE=WAL
+      - UPLOAD_TEMP_ROOT=/app/backend/uploads-temp
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/data:/app/backend/data
+      - ./backend/database:/app/backend/database
+      - ./backend/uploads-temp:/app/backend/uploads-temp
+    user: "0:0"
     depends_on:
       - redis
 
@@ -30,8 +35,13 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379/0
       - RQ_QUEUE_NAME=detect-motion
+      - DATABASE_URL=sqlite:////app/backend/database/app.db
+      - SQLITE_JOURNAL_MODE=WAL
+      - UPLOAD_TEMP_ROOT=/app/backend/uploads-temp
     volumes:
-      - ./backend/data:/app/backend/data
+      - ./backend/database:/app/backend/database
+      - ./backend/uploads-temp:/app/backend/uploads-temp
+    user: "0:0"
     depends_on:
       - redis
 

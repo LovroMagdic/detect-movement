@@ -13,5 +13,4 @@ def get_redis() -> Redis:
 
 
 def get_queue() -> Queue:
-    return Queue(QUEUE_NAME, connection=get_redis())
-
+    return Queue(QUEUE_NAME, connection=get_redis(), default_timeout=3600)

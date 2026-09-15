@@ -9,7 +9,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import detect_movementv3  # noqa: E402
+import detect_movementv6_discovery as detect_movement  # noqa: E402
 
 
 @dataclass
@@ -17,8 +17,13 @@ class PipelineOptions:
     show_video: bool = False
     save_interval_seconds: int = 5
     save_interval_seconds_headless: int = 5
-    dead_overlay_opacity: float = 0.45
+    dead_overlay_opacity: float = 0.5
     dead_overlay_color_bgr: tuple[int, int, int] = (0, 0, 255)
+    use_watermark_zone: bool = False
+    watermark_x: int | None = None
+    watermark_y: int | None = None
+    watermark_width: int | None = None
+    watermark_height: int | None = None
 
 
 def run_processing_job(
@@ -70,8 +75,12 @@ def run_processing_job(
             mark("processing", 0.9, "Rendering dead-tree overlay.", "overlay_render")
         elif event == "overlay_render_done":
             mark("processing", 0.93, "Overlay rendered.", done_step="overlay_render")
+        elif event == "forest_overlay_start":
+            mark("processing", 0.94, "Running land-cover segmentation on captured frames.", "forest_overlay")
+        elif event == "forest_overlay_done":
+            mark("processing", 0.97, "Land-cover segmentation overlay complete.", done_step="forest_overlay")
 
-    result = detect_movementv3.run_pipeline(
+    result = detect_movement.run_pipeline(
         video_path=stable_video_path,
         output_dir=output_dir,
         show_video=options.show_video,
@@ -79,6 +88,11 @@ def run_processing_job(
         save_interval_seconds_headless=options.save_interval_seconds_headless,
         dead_overlay_opacity=options.dead_overlay_opacity,
         dead_overlay_color_bgr=options.dead_overlay_color_bgr,
+        use_watermark_zone=options.use_watermark_zone,
+        watermark_x=options.watermark_x,
+        watermark_y=options.watermark_y,
+        watermark_width=options.watermark_width,
+        watermark_height=options.watermark_height,
         stage_callback=on_pipeline_stage,
     )
 
@@ -86,12 +100,13 @@ def run_processing_job(
 
     metadata = {
         "job_id": job_id,
-        "video_path": result["video_path"],
-        "frames_dir": result["frames_dir"],
-        "csv_path": result["csv_path"],
-        "map_path": result["map_path"],
-        "heatmap_path": result["heatmap_path"],
-        "overlay_path": result["overlay_path"],
+        "has_video": bool(result.get("video_path")),
+        "has_frames": bool(result.get("frames_dir")),
+        "has_csv": bool(result.get("csv_path")),
+        "has_map": bool(result.get("map_path")),
+        "has_heatmap": bool(result.get("heatmap_path")),
+        "has_overlay": bool(result.get("overlay_path")),
+        "has_forest_overlay": bool(result.get("forest_overlay_path")),
     }
     metadata_path = os.path.join(output_dir, "metadata.json")
     with open(metadata_path, "w", encoding="utf-8") as f:
@@ -108,11 +123,12 @@ def run_processing_job(
     if missing:
         raise FileNotFoundError("Missing expected output artifacts: " + ", ".join(missing))
 
-    artifacts = {
-        **required_files,
-    }
+    artifact_keys = list(required_files.keys())
+
+    forest_path = result.get("forest_overlay_path", "")
+    if forest_path and os.path.exists(forest_path):
+        artifact_keys.append("forest_overlay")
 
     mark("done", 1.0, "Artifacts are ready for download.", done_step="finalize_outputs")
 
-    return {"job_id": job_id, "artifacts": artifacts}
-
+    return {"job_id": job_id, "artifacts": artifact_keys}

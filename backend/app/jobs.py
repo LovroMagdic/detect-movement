@@ -1,6 +1,10 @@
+import os
+import tempfile
+
 from rq import get_current_job
 
 from app.services.pipeline import PipelineOptions, run_processing_job
+from app.storage import delete_processing_assets, delete_upload_dir, ingest_directory, resolve_upload_video_path
 
 STEP_LABELS = {
     "prepare_input": "Prepare input",
@@ -8,11 +12,12 @@ STEP_LABELS = {
     "stitch_map": "Stitch map",
     "generate_dead_mask": "Generate dead-tree mask heatmap",
     "overlay_render": "Render overlay",
+    "forest_overlay": "Land-cover segmentation overlay",
     "finalize_outputs": "Finalize outputs",
 }
 
 
-def process_video_job(job_id: str, input_video_path: str, output_dir: str, options: dict | None = None):
+def process_video_job(job_id: str, options: dict | None = None):
     job = get_current_job()
     opts = PipelineOptions(**(options or {}))
 
@@ -49,6 +54,10 @@ def process_video_job(job_id: str, input_video_path: str, output_dir: str, optio
         job.save_meta()
 
     try:
+        from app.storage.service import ensure_storage_ready
+
+        ensure_storage_ready()
+
         update(
             stage="queued",
             progress=0.0,
@@ -56,13 +65,25 @@ def process_video_job(job_id: str, input_video_path: str, output_dir: str, optio
             current_step=None,
             completed_steps=[],
         )
-        result = run_processing_job(
-            job_id=job_id,
-            input_video_path=input_video_path,
-            output_dir=output_dir,
-            options=opts,
-            stage_callback=update,
-        )
+        upload_path = resolve_upload_video_path(job_id)
+        with tempfile.TemporaryDirectory(prefix=f"job_{job_id}_") as tmp:
+            output_dir = os.path.join(tmp, "output")
+            os.makedirs(output_dir, exist_ok=True)
+
+            pipeline_result = run_processing_job(
+                job_id=job_id,
+                input_video_path=upload_path,
+                output_dir=output_dir,
+                options=opts,
+                stage_callback=update,
+            )
+
+            artifact_keys = ingest_directory(job_id, output_dir)
+            for key in pipeline_result.get("artifacts", []):
+                if key not in artifact_keys:
+                    artifact_keys.append(key)
+            artifact_keys = sorted(set(artifact_keys))
+
         update(
             stage="done",
             progress=1.0,
@@ -70,8 +91,9 @@ def process_video_job(job_id: str, input_video_path: str, output_dir: str, optio
             current_step=None,
             completed_steps=list(STEP_LABELS.keys()),
         )
-        return result
+        return {"job_id": job_id, "artifacts": artifact_keys}
     except Exception as exc:
+        delete_processing_assets(job_id)
         if job is not None:
             job.meta["stage"] = "failed"
             job.meta["progress"] = 1.0
@@ -84,4 +106,5 @@ def process_video_job(job_id: str, input_video_path: str, output_dir: str, optio
             )
             job.save_meta()
         raise
-
+    finally:
+        delete_upload_dir(job_id)

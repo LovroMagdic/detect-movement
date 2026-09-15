@@ -3,6 +3,10 @@ uvicorn[standard]
 python-multipart
 redis
 rq
+sqlalchemy
 opencv-python
+Pillow
 numpy
 matplotlib
+segmentation-models-pytorch
+albumentations

@@ -11,12 +11,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY backend/requirements.txt /tmp/requirements.txt
-RUN python -m pip install --upgrade pip && python -m pip install -r /tmp/requirements.txt
+RUN python -m pip install --upgrade pip
+RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+RUN pip install -r /tmp/requirements.txt
 
 COPY . /app
-# Repo root modules (detect_movementv3, image_preprocessing) live in /app; package app is under /app/backend
 ENV PYTHONPATH=/app:/app/backend
 WORKDIR /app/backend
+
+RUN mkdir -p /app/backend/database && chmod 777 /app/backend/database
 
 EXPOSE 8000
 
